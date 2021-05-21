@@ -1,4 +1,4 @@
-import { InitGPU, CreateGPUBuffer } from './helper';
+import { InitGPU, CreateGPUBuffer, CreateGPUBufferUint } from './helper';
 import { Shaders } from './shaders';
 
 const CreateSquare = async () => {
@@ -7,23 +7,16 @@ const CreateSquare = async () => {
 
     const vertexData = new Float32Array([
         //position    //color
-       -0.5, -0.5,    1, 0, 0,  // index = 0
-        0.5, -0.5,    0, 1, 0,  // index = 1
-       -0.5,  0.5,    1, 1, 0,  // index = 2  
-        0.5,  0.5,    0, 0, 1   // index = 3        
+       -0.5, -0.5,    1, 0, 0,  // vertex a, index = 0
+        0.5, -0.5,    0, 1, 0,  // vertex b, index = 1
+        0.5,  0.5,    0, 0, 1,  // vertex c, index = 2  
+       -0.5,  0.5,    1, 1, 0   // vertex d, index = 3        
     ]);
 
-    const indexData = new Uint32Array([0, 1, 2, 1, 3, 2]);
+    const indexData = new Uint32Array([0, 1, 3, 3, 1, 2]);
    
     const vertexBuffer = CreateGPUBuffer(device, vertexData);
-
-    const indexBuffer = device.createBuffer({
-        size: indexData.byteLength,
-        usage: GPUBufferUsage.INDEX,
-        mappedAtCreation: true
-    });  
-    new Uint32Array(indexBuffer.getMappedRange()).set(indexData);
-    indexBuffer.unmap();
+    const indexBuffer = CreateGPUBufferUint(device, indexData);
     
     const shader = Shaders();
     const pipeline = device.createRenderPipeline({
@@ -41,9 +34,9 @@ const CreateSquare = async () => {
                         offset: 0
                     },
                     {
-                        shaderLocation: 1,
-                        offset: 4*2,
-                        format: 'float32x3'
+                        shaderLocation: 1,                        
+                        format: 'float32x3',
+                        offset: 8,
                     }
                     ]
                 }
