@@ -1,3 +1,4 @@
+import { LoaderOptionsPlugin } from 'webpack';
 import { InitGPU, CreateGPUBuffer, CreateGPUBufferUint } from './helper';
 import { Shaders } from './shaders';
 
@@ -20,6 +21,7 @@ const CreateSquare = async () => {
     
     const shader = Shaders();
     const pipeline = device.createRenderPipeline({
+        layout:'auto',
         vertex: {
             module: device.createShaderModule({                    
                 code: shader.vertex
@@ -63,8 +65,9 @@ const CreateSquare = async () => {
     const renderPass = commandEncoder.beginRenderPass({
         colorAttachments: [{
             view: textureView,
-            loadValue: { r: 0.5, g: 0.5, b: 0.8, a: 1.0 }, //background color
-            storeOp: 'store'
+            clearValue: { r: 0.5, g: 0.5, b: 0.8, a: 1.0 }, //background color
+            storeOp: 'store',
+            loadOp:'clear'
         }]
     });
     renderPass.setPipeline(pipeline);
@@ -72,7 +75,7 @@ const CreateSquare = async () => {
     renderPass.setIndexBuffer(indexBuffer, "uint32");
 
     renderPass.drawIndexed(6);
-    renderPass.endPass();
+    renderPass.end();
 
     device.queue.submit([commandEncoder.finish()]);
 }
